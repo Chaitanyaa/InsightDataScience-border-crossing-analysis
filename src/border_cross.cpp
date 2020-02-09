@@ -53,7 +53,6 @@ bool cmp(const pair<record_key,record_value> &p1,const pair<record_key,record_va
 
 //Variables
 map<record_key,record_value> entry;
-vector<string> headers;
 
 // Functions
 struct timestamp process_date(string dt){
@@ -88,16 +87,7 @@ void readFile(string p_filepath){
         if(!fin) throw "Error opening file! for read" ;
         while(getline(fin,m_row)){
         vector<string> dataitems;
-        if(l_headerline){
-            l_headerline=0;
-            stringstream s(m_row);
-            while(getline(s,m_col,',')){
-                dataitems.push_back(m_col);
-            }
-            headers = dataitems;
-
-        }
-        else{
+        if(!l_headerline){
             stringstream s(m_row);
             while(getline(s,m_col,',')){
                 dataitems.push_back(m_col);
@@ -107,6 +97,7 @@ void readFile(string p_filepath){
             key.border = dataitems[3];
             entry[key].val+=stoi(dataitems[6]);
         }
+        l_headerline=0;
     }
     fin.close();
     }
@@ -121,15 +112,7 @@ void writeFile(string p_filepath, map<record_key,record_value> p_entry, vector<p
         ofstream fout;
         fout.open(p_filepath,ios::out);
         if(!fout) throw "Error opening file! for write" ;
-        
-        for(int i=0;i<headers.size();i++){
-            if(i==headers.size()-1){
-                fout<<headers[i]<<"\n";
-            }
-            else{
-                fout<<headers[i]<<",";
-            }
-        }
+        fout<<"Border,Date,Measure,Value,Average\n";
         vector<pair<record_key,record_value>> vec(entry.begin(),entry.end());
         for(auto it=vec.begin();it!=vec.end();it++){
             record_key temp1,temp2;
@@ -149,9 +132,9 @@ void writeFile(string p_filepath, map<record_key,record_value> p_entry, vector<p
         }
         sort(vec.begin(),vec.end(),cmp);
         for(auto it=vec.begin();it!=vec.end();it++){
-            string combine = "/"+to_string(it->first.t.day)+"/"+to_string(it->first.t.year)+" "+it->first.t.time+" "+it->first.t.amrpm;
-            fout<<it->first.border<<","<<std::setfill('0')<<std::setw(2)<<it->first.t.month<<combine<<","<<it->first.measure<<","<<it->second.val<<","<<it->second.average<<"\n";
-        }
+        string combine = "/"+to_string(it->first.t.year)+" "+it->first.t.time+" "+it->first.t.amrpm;
+        fout<<it->first.border<<","<<std::setfill('0')<<std::setw(2)<<it->first.t.month<<"/"<<std::setfill('0')<<std::setw(2)<<it->first.t.day<<combine<<","<<it->first.measure<<","<<it->second.val<<","<<it->second.average<<"\n";
+		}
         fout.close();
     }
     catch( const char* cstr )
