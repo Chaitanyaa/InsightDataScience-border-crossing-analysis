@@ -8,7 +8,8 @@
 
 echo "Now we are going to compile the original c++ file..."
 
-g++ -std=c++11 ./src/border_cross.cpp -o Program
+g++ -std=c++11 ./src/border_analytics_d.h
+g++ -std=c++11 ./src/border_analytics.cpp -o Program
 
 if [ $? -ne 0 ]
 then
